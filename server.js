@@ -5,17 +5,19 @@ const path = require('path');
 
 const app = express();
 const server = http.createServer(app);
-
-// Initialize Socket.io with CORS allowed for your Render domain
 const io = new Server(server, {
-    cors: {
-        origin: "*",
-        methods: ["GET", "POST"]
-    }
+    cors: { origin: "*" } // Required for cross-origin socket connections on Render
 });
 
+// 1. Tell Express where the static files are
 app.use(express.static(path.join(__dirname, 'public')));
 
+// 2. FALLBACK ROUTE: If the static middleware fails, manually send the file
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// --- GAME STATE ---
 const rooms = {}; 
 const questions = [
     { q: "Which planet is known as the Red Planet?", o: ["Mars", "Venus", "Jupiter"], c: 0 },
@@ -31,13 +33,7 @@ io.on('connection', (socket) => {
         socket.userName = name;
         
         if (!rooms[room]) {
-            rooms[room] = {
-                players: [],
-                status: 'lobby',
-                currentQIndex: 0,
-                chosenOne: null,
-                mobAnswers: {}
-            };
+            rooms[room] = { players: [], status: 'lobby', currentQIndex: 0, chosenOne: null, mobAnswers: {} };
         }
 
         const roomData = rooms[room];
@@ -67,7 +63,7 @@ io.on('connection', (socket) => {
         const roomData = rooms[room];
         const q = questions[roomData.currentQIndex];
         if (!q) {
-            io.to(room).emit('gameOver', { message: "The Chosen One conquered the Arena!" });
+            io.to(room).emit('gameOver', { message: "Arena Conquered!" });
             return;
         }
         roomData.mobAnswers = {}; 
@@ -92,7 +88,6 @@ io.on('connection', (socket) => {
 
             if (idx === correct) {
                 roomData.currentQIndex++;
-                roomData.status = 'playing'; 
                 setTimeout(() => sendNextQuestion(socket.roomCode), 4000);
             } else {
                 io.to(socket.roomCode).emit('gameOver', { message: "The Mob claimed a victim!" });
@@ -105,7 +100,7 @@ io.on('connection', (socket) => {
         if (rooms[room]) {
             rooms[room].players = rooms[room].players.filter(id => id !== socket.id);
             if (socket.id === rooms[room].chosenOne) {
-                io.to(room).emit('gameOver', { message: "Chosen One disconnected." });
+                io.to(room).emit('gameOver', { message: "Master Disconnected." });
                 delete rooms[room];
             } else {
                 io.to(room).emit('updateMob', rooms[room].players.length);
@@ -114,8 +109,5 @@ io.on('connection', (socket) => {
     });
 });
 
-// IMPORTANT FOR RENDER
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
