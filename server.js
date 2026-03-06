@@ -27,6 +27,7 @@ const questions = [
 io.on('connection', (socket) => {
     const role = Object.keys(players).length === 0 ? 'chosen' : 'mob';
     players[socket.id] = { id: socket.id, role: role, lastAnswer: null };
+    
     socket.emit('init', { role });
     io.emit('updateMob', Object.keys(players).length);
 
@@ -43,6 +44,8 @@ io.on('connection', (socket) => {
             players[socket.id].lastAnswer = index;
             if (players[socket.id].role === 'mob') {
                 roundAnswers[index]++;
+                // BROADCAST to everyone that a mob member voted
+                socket.broadcast.emit('mobVoted', { socketId: socket.id });
             }
         }
     });
@@ -55,12 +58,13 @@ io.on('connection', (socket) => {
 
 async function runGameLoop() {
     if (currentQuestionIndex >= questions.length) {
-        io.emit('gameOver', { message: "Arena Concluded" });
+        io.emit('gameOver', { message: "The Arena has concluded. Final Score Banked!" });
         return;
     }
     roundAnswers = { 0: 0, 1: 0, 2: 0 };
     const q = questions[currentQuestionIndex];
     io.emit('nextQuestion', { q: q.q, o: q.o });
+    
     let timeLeft = 15;
     const timer = setInterval(() => {
         timeLeft--;
@@ -81,6 +85,7 @@ function resolveRound() {
         2: Math.round((roundAnswers[2] / mobTotal) * 100)
     };
     io.emit('reveal', { correct: q.c, stats: stats });
+    
     setTimeout(() => {
         currentQuestionIndex++;
         runGameLoop();
