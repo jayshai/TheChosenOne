@@ -24,6 +24,18 @@ const questions = [
     { q: "What is the largest ocean on Earth?", o: ["Atlantic", "Indian", "Pacific"], c: 2 }
 ];
 
+// Helper to reassign Master if needed
+function reassignMaster() {
+    const ids = Object.keys(players);
+    if (ids.length > 0) {
+        const hasChosen = ids.some(id => players[id].role === 'chosen');
+        if (!hasChosen) {
+            players[ids[0]].role = 'chosen';
+            io.to(ids[0]).emit('init', { role: 'chosen' });
+        }
+    }
+}
+
 io.on('connection', (socket) => {
     const role = Object.keys(players).length === 0 ? 'chosen' : 'mob';
     players[socket.id] = { id: socket.id, role: role, lastAnswer: null };
@@ -44,12 +56,12 @@ io.on('connection', (socket) => {
             players[socket.id].lastAnswer = index;
             if (players[socket.id].role === 'mob') {
                 roundAnswers[index]++;
-                socket.broadcast.emit('mobVoted');
+                // Trigger animation for everyone else
+                io.emit('mobVoted');
             }
         }
     });
 
-    // Handle Decision Phase Buttons
     socket.on('playOn', () => {
         if (players[socket.id]?.role === 'chosen') {
             currentQuestionIndex++;
@@ -61,11 +73,14 @@ io.on('connection', (socket) => {
         if (players[socket.id]?.role === 'chosen') {
             io.emit('gameOver', { message: "THE CHOSEN ONE TOOK THE MONEY AND FLED!" });
             gameStarted = false;
+            currentQuestionIndex = 0;
         }
     });
 
     socket.on('disconnect', () => {
+        const wasChosen = players[socket.id]?.role === 'chosen';
         delete players[socket.id];
+        if (wasChosen) reassignMaster();
         io.emit('updateMob', Object.keys(players).length);
     });
 });
@@ -104,7 +119,6 @@ function resolveRound() {
 
     io.emit('reveal', { correct: q.c, stats: stats });
 
-    // ELIMINATION LOGIC
     if (!chosenOne || chosenOne.lastAnswer !== q.c) {
         setTimeout(() => {
             io.emit('gameOver', { message: "THE CHOSEN ONE WAS ELIMINATED BY THE MOB!" });
@@ -114,11 +128,10 @@ function resolveRound() {
         return;
     }
 
-    // DECISION PHASE (Only if correct)
     setTimeout(() => {
         io.emit('decisionPhase');
     }, 3000);
 }
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`Arena live on ${PORT}`));
+server.listen(PORT, () => console.log(`Arena live`));
