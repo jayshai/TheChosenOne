@@ -7,12 +7,10 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
 
-// Serve your index.html file
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Game State
 let players = {}; 
 let gameStarted = false;
 let currentQuestionIndex = 0;
@@ -27,15 +25,13 @@ const questions = [
 ];
 
 io.on('connection', (socket) => {
-    // First connection is Chosen One, others are Mob
     const role = Object.keys(players).length === 0 ? 'chosen' : 'mob';
     players[socket.id] = { id: socket.id, role: role, lastAnswer: null };
-    
     socket.emit('init', { role });
     io.emit('updateMob', Object.keys(players).length);
 
     socket.on('startGame', () => {
-        if (players[socket.id].role === 'chosen' && !gameStarted) {
+        if (players[socket.id] && players[socket.id].role === 'chosen' && !gameStarted) {
             gameStarted = true;
             io.emit('gameStart');
             runGameLoop();
@@ -45,7 +41,6 @@ io.on('connection', (socket) => {
     socket.on('submitAnswer', (index) => {
         if (players[socket.id]) {
             players[socket.id].lastAnswer = index;
-            // Track mob distribution for the heatmap
             if (players[socket.id].role === 'mob') {
                 roundAnswers[index]++;
             }
@@ -58,4 +53,41 @@ io.on('connection', (socket) => {
     });
 });
 
-async function
+async function runGameLoop() {
+    if (currentQuestionIndex >= questions.length) {
+        io.emit('gameOver', { message: "Arena Concluded" });
+        return;
+    }
+    roundAnswers = { 0: 0, 1: 0, 2: 0 };
+    const q = questions[currentQuestionIndex];
+    io.emit('nextQuestion', { q: q.q, o: q.o });
+    let timeLeft = 15;
+    const timer = setInterval(() => {
+        timeLeft--;
+        io.emit('tick', timeLeft);
+        if (timeLeft <= 0) {
+            clearInterval(timer);
+            resolveRound();
+        }
+    }, 1000);
+}
+
+function resolveRound() {
+    const q = questions[currentQuestionIndex];
+    const mobTotal = Object.values(players).filter(p => p.role === 'mob').length || 1;
+    const stats = {
+        0: Math.round((roundAnswers[0] / mobTotal) * 100),
+        1: Math.round((roundAnswers[1] / mobTotal) * 100),
+        2: Math.round((roundAnswers[2] / mobTotal) * 100)
+    };
+    io.emit('reveal', { correct: q.c, stats: stats });
+    setTimeout(() => {
+        currentQuestionIndex++;
+        runGameLoop();
+    }, 5000);
+}
+
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+    console.log(`Arena is live on port ${PORT}`);
+});
