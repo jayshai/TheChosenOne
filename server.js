@@ -1,134 +1,124 @@
-// Ensure Socket.io client library is loaded in your <head>
-const socket = io(); 
-let myRole = 'mob';
-let selected = null;
-let currentQIndex = 0;
-let isLocked = true;
+const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
+const path = require('path');
 
-// Initialize the grid visually (Keeping your original loop)
-const grid = document.getElementById('mob-grid');
-for(let i=0; i<100; i++) grid.innerHTML += `<div class="mob-tile" id="m-${i}">👤</div>`;
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server, { cors: { origin: "*" } });
 
-// Initialize ladder (Keeping your original loop)
-const prizes = ["$1k", "$5k", "$10k", "$25k", "$50k", "$100k", "$250k", "$500k", "$1M"];
-const ladder = document.getElementById('ladder');
-prizes.forEach((p, i) => ladder.innerHTML += `<div class="step" id="s-${i}">${p}</div>`);
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
 
-// --- MULTIPLAYER LISTENERS ---
+let players = {}; 
+let gameStarted = false;
+let currentQuestionIndex = 0;
+let roundAnswers = { 0: 0, 1: 0, 2: 0 };
 
-// Assign Role on Connection
-socket.on('init', (data) => {
-    myRole = data.role;
-    // Update your existing user profile UI
-    document.querySelector('.user-avatar').innerText = (myRole === 'chosen' ? 'C1' : 'M');
-    document.querySelector('.user-profile div:nth-child(2)').innerText = (myRole === 'chosen' ? 'CHOSEN_ONE' : 'THE_MOB');
+const questions = [
+    { q: "Which planet is known as the 'Red Planet'?", o: ["Venus", "Mars", "Saturn"], c: 1 },
+    { q: "What is the square root of 144?", o: ["12", "14", "16"], c: 0 },
+    { q: "Which element has the chemical symbol 'O'?", o: ["Gold", "Oxygen", "Iron"], c: 1 },
+    { q: "Who painted the Mona Lisa?", o: ["Picasso", "Van Gogh", "Da Vinci"], c: 2 },
+    { q: "What is the largest ocean on Earth?", o: ["Atlantic", "Indian", "Pacific"], c: 2 }
+];
+
+io.on('connection', (socket) => {
+    const role = Object.keys(players).length === 0 ? 'chosen' : 'mob';
+    players[socket.id] = { id: socket.id, role: role, lastAnswer: null };
     
-    const btn = document.getElementById('enter-arena-btn');
-    if(myRole === 'chosen') {
-        btn.innerText = "START THE ARENA";
-    } else {
-        btn.innerText = "WAITING FOR HOST";
-        btn.style.pointerEvents = "none"; // Mob cannot trigger start
-    }
-});
+    socket.emit('init', { role });
+    io.emit('updateMob', Object.keys(players).length);
 
-// Update Real-Time Player Count
-socket.on('updateMob', (count) => {
-    document.getElementById('lobby-count').childNodes[0].textContent = count + " ";
-    document.getElementById('mob-count').innerText = count;
-    
-    if(count >= 1) {
-        const btn = document.getElementById('enter-arena-btn');
-        btn.disabled = false;
-        btn.style.opacity = "1";
-    }
-});
-
-// Sync Game Transitions
-socket.on('gameStart', () => {
-    document.getElementById('lobby-overlay').style.display = 'none';
-});
-
-// Load Question from Server
-socket.on('nextQuestion', (data) => {
-    selected = null;
-    isLocked = false;
-    document.getElementById('q-text').innerText = data.q;
-    document.getElementById('heatmap').style.opacity = 0;
-    document.getElementById('shroud').style.opacity = 0;
-    document.getElementById('action-bar-inner').classList.remove('active');
-    
-    const opts = document.querySelectorAll('.btn-opt');
-    opts.forEach((btn, i) => {
-        btn.innerText = `${String.fromCharCode(65+i)}. ${data.o[i]}`;
-        btn.classList.remove('locked', 'reveal-correct', 'reveal-wrong');
-        btn.disabled = false;
-    });
-    
-    // Clear the visual 'voted' state from tiles
-    document.querySelectorAll('.mob-tile').forEach(t => t.classList.remove('voted'));
-});
-
-// Synchronized Server Timer
-socket.on('tick', (count) => {
-    document.getElementById('timer-text').innerText = count;
-    // Update your existing SVG progress circle
-    document.getElementById('timer-path').style.strokeDashoffset = 283 - (283 * (count / 15));
-});
-
-// Real-Time Mob Activity Feedback
-socket.on('mobVoted', () => {
-    const available = document.querySelectorAll('.mob-tile:not(.voted):not(.eliminated)');
-    if(available.length > 0) {
-        available[Math.floor(Math.random() * available.length)].classList.add('voted');
-    }
-});
-
-// Final Reveal Logic
-socket.on('reveal', (data) => {
-    isLocked = true;
-    const opts = document.querySelectorAll('.btn-opt');
-    opts.forEach((btn, i) => {
-        btn.disabled = true;
-        if(i === data.correct) btn.classList.add('reveal-correct');
-        else if(i === selected) btn.classList.add('reveal-wrong');
+    socket.on('startGame', () => {
+        if (players[socket.id]?.role === 'chosen' && !gameStarted) {
+            gameStarted = true;
+            io.emit('gameStart');
+            runGameLoop();
+        }
     });
 
-    // Populate your existing Heatmap with real data
-    document.getElementById('heatmap').style.opacity = 1;
-    [0,1,2].forEach(i => {
-        const bar = document.getElementById(`bar-${i}`);
-        bar.style.height = (data.stats[i] || 5) + "%";
-        bar.className = 'heat-bar ' + (i === data.correct ? 'correct' : 'incorrect');
+    socket.on('submitAnswer', (index) => {
+        if (players[socket.id]) {
+            players[socket.id].lastAnswer = index;
+            if (players[socket.id].role === 'mob') {
+                roundAnswers[index]++;
+                socket.broadcast.emit('mobVoted');
+            }
+        }
     });
 
-    // Update Prize Ladder progress
-    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
-    if(document.getElementById(`s-${currentQIndex}`)) {
-        document.getElementById(`s-${currentQIndex}`).classList.add('active');
+    // Handle Decision Phase Buttons
+    socket.on('playOn', () => {
+        if (players[socket.id]?.role === 'chosen') {
+            currentQuestionIndex++;
+            runGameLoop();
+        }
+    });
+
+    socket.on('walkAway', () => {
+        if (players[socket.id]?.role === 'chosen') {
+            io.emit('gameOver', { message: "THE CHOSEN ONE TOOK THE MONEY AND FLED!" });
+            gameStarted = false;
+        }
+    });
+
+    socket.on('disconnect', () => {
+        delete players[socket.id];
+        io.emit('updateMob', Object.keys(players).length);
+    });
+});
+
+async function runGameLoop() {
+    if (currentQuestionIndex >= questions.length) {
+        io.emit('gameOver', { message: "ARENA CONCLUDED: NO QUESTIONS REMAINING" });
+        return;
     }
-    currentQIndex++;
-});
-
-// Handle Game Over
-socket.on('gameOver', (data) => {
-    document.getElementById('overlay').style.display = 'flex';
-    document.getElementById('overlay').style.opacity = '1';
-    document.getElementById('res-msg').innerText = data.message;
-});
-
-// --- CLIENT ACTIONS ---
-
-function readyUp() {
-    if(myRole === 'chosen') socket.emit('startGame');
+    roundAnswers = { 0: 0, 1: 0, 2: 0 };
+    const q = questions[currentQuestionIndex];
+    io.emit('nextQuestion', { q: q.q, o: q.o });
+    
+    let timeLeft = 15;
+    const timer = setInterval(() => {
+        timeLeft--;
+        io.emit('tick', timeLeft);
+        if (timeLeft <= 0) {
+            clearInterval(timer);
+            resolveRound();
+        }
+    }, 1000);
 }
 
-function userSelect(i) {
-    if(isLocked || selected !== null) return;
-    selected = i;
-    document.querySelectorAll('.btn-opt').forEach((btn, idx) => {
-        btn.classList.toggle('locked', idx === i);
-    });
-    // Send choice to server to calculate heatmap
-    socket.emit('submitAnswer', i);
+function resolveRound() {
+    const q = questions[currentQuestionIndex];
+    const chosenOneId = Object.keys(players).find(id => players[id].role === 'chosen');
+    const chosenOne = players[chosenOneId];
+    
+    const mobTotal = Object.values(players).filter(p => p.role === 'mob').length || 1;
+    const stats = {
+        0: Math.round((roundAnswers[0] / mobTotal) * 100),
+        1: Math.round((roundAnswers[1] / mobTotal) * 100),
+        2: Math.round((roundAnswers[2] / mobTotal) * 100)
+    };
+
+    io.emit('reveal', { correct: q.c, stats: stats });
+
+    // ELIMINATION LOGIC
+    if (!chosenOne || chosenOne.lastAnswer !== q.c) {
+        setTimeout(() => {
+            io.emit('gameOver', { message: "THE CHOSEN ONE WAS ELIMINATED BY THE MOB!" });
+            gameStarted = false;
+            currentQuestionIndex = 0; 
+        }, 2000);
+        return;
+    }
+
+    // DECISION PHASE (Only if correct)
+    setTimeout(() => {
+        io.emit('decisionPhase');
+    }, 3000);
 }
+
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => console.log(`Arena live on ${PORT}`));
