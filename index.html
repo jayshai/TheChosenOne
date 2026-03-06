@@ -24,63 +24,50 @@
             --txt-white: linear-gradient(180deg, #FFFFFF 40%, #a5a5a5 100%);
             --txt-accent: linear-gradient(180deg, #a5b4fc 0%, #6366f1 100%);
             --txt-gold: linear-gradient(180deg, #fde68a 0%, #f59e0b 100%);
-            --txt-success: linear-gradient(180deg, #6ee7b7 0%, #10b981 100%);
         }
 
         * { box-sizing: border-box; }
         body { margin: 0; font-family: var(--system-font); background-color: var(--bg-deep); color: #fff; height: 100vh; display: flex; flex-direction: column; overflow: hidden; position: relative; }
-        #bg-canvas { position: fixed; top: -50%; left: -50%; width: 200%; height: 200%; z-index: -1; background: radial-gradient(circle at 30% 30%, rgba(99, 102, 241, 0.15) 0%, transparent 40%), radial-gradient(circle at 70% 70%, rgba(245, 158, 11, 0.08) 0%, transparent 40%), radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.05) 0%, transparent 60%); animation: auroraDrift 25s ease-in-out infinite alternate; will-change: transform; }
+        
+        /* Background & Utilities */
+        #bg-canvas { position: fixed; top: -50%; left: -50%; width: 200%; height: 200%; z-index: -1; background: radial-gradient(circle at 30% 30%, rgba(99, 102, 241, 0.15) 0%, transparent 40%), radial-gradient(circle at 70% 70%, rgba(245, 158, 11, 0.08) 0%, transparent 40%); animation: auroraDrift 25s ease-in-out infinite alternate; }
         @keyframes auroraDrift { 0% { transform: translate(0, 0) rotate(0deg); } 100% { transform: translate(8%, 4%) rotate(3deg); } }
         .gt-white { background: var(--txt-white); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .gt-accent { background: var(--txt-accent); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .gt-gold { background: var(--txt-gold); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+        /* Layout */
         header { height: 75px; padding: 0 40px; display: flex; justify-content: space-between; align-items: center; background: rgba(10, 10, 12, 0.6); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.05); z-index: 10; }
         .brand { font-weight: 900; font-size: 1.3rem; letter-spacing: -0.05em; background: var(--premium-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; }
-        .header-right { display: flex; gap: 25px; align-items: center; }
-        .stat-group { text-align: right; }
-        .stat-label { opacity: 0.5; font-weight: 800; font-size: 0.6rem; letter-spacing: 0.05em; display: block; }
-        .stat-value { font-weight: 900; font-size: 1.1rem; }
-        .user-profile { display: flex; align-items: center; gap: 12px; padding: 6px 16px; background: rgba(255,255,255,0.03); border-radius: 100px; border: 1px solid rgba(255,255,255,0.1); }
-        .user-avatar { width: 32px; height: 32px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.75rem; box-shadow: 0 0 15px var(--accent-glow); }
         main { display: grid; grid-template-columns: 100px 420px 1fr; flex-grow: 1; padding: 25px; gap: 20px; height: calc(100vh - 75px); position: relative; z-index: 1; }
-        #ladder { display: flex; flex-direction: column-reverse; gap: 6px; z-index: 5; }
-        .step { flex: 1; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 800; color: #444; transition: 0.4s; }
-        .step.active { border-color: var(--gold); color: var(--gold); background: rgba(245, 158, 11, 0.1); border: 1px solid; box-shadow: 0 0 20px rgba(245, 158, 11, 0.2); }
-        #contestant-panel { background: rgba(18, 18, 23, 0.6); border-radius: 32px; border: 1px solid rgba(255,255,255,0.1); padding: 30px; display: flex; flex-direction: column; justify-content: space-between; z-index: 100; backdrop-filter: blur(25px); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
-        .btn-opt { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); padding: 16px; margin-bottom: 8px; border-radius: 16px; color: #fff; font-weight: 600; text-align: left; cursor: pointer; transition: 0.2s; }
-        .btn-opt.locked { border-color: #fff; background: var(--btn-gradient); box-shadow: 0 4px 15px var(--accent-glow); }
-        .btn-opt.reveal-correct { background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important; border-color: #fff !important; }
-        .btn-opt.reveal-wrong { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important; border-color: #fff !important; }
-        #mob-grid { display: grid; grid-template-columns: repeat(10, 1fr); grid-template-rows: repeat(10, 1fr); gap: 8px; height: 100%; z-index: 5; }
-        .mob-tile { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: rgba(255,255,255,0.1); transition: all 0.3s ease; position: relative; }
-        .mob-tile.voted { background: rgba(99, 102, 241, 0.15); color: #fff; border-color: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
-        .mob-tile.wrong { background: var(--danger) !important; border-color: #fff !important; color: #fff !important; z-index: 50; }
-        .mob-tile.eliminated { opacity: 0; transform: translateY(10px); pointer-events: none; }
-        .heatmap { display: flex; gap: 12px; height: 60px; margin: 10px 0; align-items: flex-end; opacity: 0; transition: 0.5s; }
-        .heat-bar { flex: 1; border-radius: 8px 8px 2px 2px; min-height: 5px; transition: height 0.8s; position: relative; background: var(--muted); }
-        .heat-bar.correct { background: linear-gradient(to top, #065f46, var(--success)); }
-        .heat-bar.incorrect { background: linear-gradient(to top, #991b1b, var(--danger)); }
-        #lobby-overlay, #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(50px); z-index: 3000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1); }
-        .premium-card { background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 48px; padding: 60px; text-align: center; width: 540px; box-shadow: 0 40px 120px rgba(0,0,0,0.8); position: relative; overflow: hidden; transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.6s; }
-        .premium-title { font-size: 3.5rem; font-weight: 900; letter-spacing: -0.05em; margin: 0; background: var(--premium-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; }
-        .action-row { display: flex; gap: 15px; margin-top: 15px; width: 100%; opacity: 0; transition: 0.5s; pointer-events: none; }
-        .action-row.active { opacity: 1; pointer-events: all; }
-        .action-btn { flex: 1; padding: 22px; border-radius: 20px; border: none; font-weight: 900; cursor: pointer; text-transform: uppercase; transition: 0.3s; letter-spacing: 1px; font-size: 0.9rem; }
-        .btn-walk { background: var(--gold-gradient); color: #000; box-shadow: 0 10px 30px var(--gold-glow); }
-        .btn-play { background: var(--btn-gradient); color: #fff; box-shadow: 0 10px 30px var(--accent-glow); }
-        .status-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; display: inline-block; margin-right: 10px; }
 
-        @media (max-width: 1024px) {
-            body { overflow-y: auto; height: auto; min-height: 100vh; }
-            header { height: 60px; padding: 0 15px; }
-            main { display: flex; flex-direction: column; padding: 15px; height: auto; gap: 15px; }
-            #ladder { flex-direction: row; height: 35px; overflow-x: auto; padding-bottom: 5px; order: 1; }
-            .step { min-width: 65px; flex: none; font-size: 0.6rem; }
-            #contestant-panel { order: 2; padding: 20px; border-radius: 24px; min-height: 400px; }
-            #mob-grid { order: 3; grid-template-columns: repeat(10, 1fr); height: auto; gap: 4px; margin-top: 10px; }
-            .premium-card { width: 92%; padding: 40px 20px; border-radius: 32px; }
-            .premium-title { font-size: 2.2rem; }
-        }
+        /* Profile & Room UI */
+        .input-group { margin-bottom: 20px; text-align: left; }
+        .input-label { font-size: 0.65rem; font-weight: 800; opacity: 0.5; margin-bottom: 8px; display: block; letter-spacing: 1px; }
+        .premium-input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 14px; color: white; font-weight: 600; outline: none; transition: 0.3s; }
+        .premium-input:focus { border-color: var(--accent); background: rgba(255,255,255,0.1); }
+        .avatar-grid { display: flex; gap: 10px; margin-top: 10px; justify-content: center; }
+        .avatar-opt { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--surface); border: 2px solid transparent; cursor: pointer; transition: 0.2s; font-size: 1.2rem; }
+        .avatar-opt.active { border-color: var(--accent); background: var(--surface-lift); transform: scale(1.1); box-shadow: 0 0 15px var(--accent-glow); }
+        
+        /* Elements */
+        #ladder { display: flex; flex-direction: column-reverse; gap: 6px; }
+        .step { flex: 1; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 800; color: #444; }
+        .step.active { border-color: var(--gold); color: var(--gold); background: rgba(245, 158, 11, 0.1); }
+        
+        #contestant-panel { background: rgba(18, 18, 23, 0.6); border-radius: 32px; border: 1px solid rgba(255,255,255,0.1); padding: 30px; display: flex; flex-direction: column; justify-content: space-between; backdrop-filter: blur(25px); }
+        .btn-opt { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); padding: 16px; margin-bottom: 8px; border-radius: 16px; color: #fff; font-weight: 600; text-align: left; cursor: pointer; }
+        .btn-opt.locked { border-color: #fff; background: var(--btn-gradient); }
+
+        #mob-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 8px; }
+        .mob-tile { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; opacity: 0.3; }
+        .mob-tile.active { opacity: 1; color: #fff; border-color: var(--accent); }
+
+        #lobby-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(40px); z-index: 2000; display: flex; align-items: center; justify-content: center; }
+        .premium-card { background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 40px; padding: 50px; text-align: center; width: 480px; box-shadow: 0 40px 100px rgba(0,0,0,0.6); }
+        .action-btn { width: 100%; padding: 18px; border-radius: 16px; border: none; font-weight: 900; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
+        .btn-play { background: var(--btn-gradient); color: #fff; box-shadow: 0 10px 25px var(--accent-glow); }
+        .invite-link { margin-top: 15px; font-size: 0.7rem; color: var(--accent); cursor: pointer; font-weight: 700; text-decoration: underline; display: block; }
     </style>
 </head>
 <body>
@@ -88,63 +75,69 @@
 <div id="bg-canvas"></div>
 
 <div id="lobby-overlay">
-    <div class="premium-card" id="lobby-card">
-        <h1 class="premium-title">The Chosen One</h1>
-        <div style="margin-bottom: 30px;">
-            <span class="status-dot" id="lobby-dot"></span>
-            <span id="lobby-status" class="gt-accent" style="font-size: 0.85rem; font-weight: 800; letter-spacing: 2px;">SYNCING ARENA...</span>
-        </div>
-        <div style="background: rgba(255,255,255,0.03); border-radius: 24px; padding: 35px; margin: 25px 0; border: 1px solid rgba(255,255,255,0.1);">
-            <div style="font-size: 0.75rem; font-weight: 800; opacity: 0.4; margin-bottom: 10px; text-transform: uppercase;">Players Ready</div>
-            <div id="lobby-count" class="gt-accent" style="font-size: 3.2rem; font-weight: 900;">0</div>
-        </div>
-        <button id="enter-arena-btn" class="action-btn btn-play" onclick="readyUp()" disabled style="width:100%; opacity: 0.2;">Arena Offline</button>
-    </div>
-</div>
+    <div class="premium-card">
+        <h1 class="premium-title" style="font-size: 2.5rem; margin-bottom: 30px;">The Arena</h1>
+        
+        <div id="lobby-setup">
+            <div class="input-group">
+                <span class="input-label">CHOOSE YOUR ALIAS</span>
+                <input type="text" id="username-input" class="premium-input" placeholder="Enter name...">
+                <div class="avatar-grid">
+                    <div class="avatar-opt active" onclick="setAvatar(this, '👤')">👤</div>
+                    <div class="avatar-opt" onclick="setAvatar(this, '💀')">💀</div>
+                    <div class="avatar-opt" onclick="setAvatar(this, '🔥')">🔥</div>
+                    <div class="avatar-opt" onclick="setAvatar(this, '💎')">💎</div>
+                    <div class="avatar-opt" onclick="setAvatar(this, '⚡')">⚡</div>
+                </div>
+            </div>
 
-<div id="overlay" style="display:none; opacity:0;">
-    <div class="premium-card" id="result-card" style="transform: scale(0.8);">
-        <h1 id="res-title" class="premium-title" style="font-size: 2.8rem;">Game Over</h1>
-        <p id="res-msg" class="gt-white" style="font-size: 0.9rem; margin-top: 10px;">The Mob claimed another victim.</p>
-        <div style="display:flex; flex-direction: column; gap: 12px; margin-top: 30px;">
-            <button class="action-btn btn-play" onclick="location.reload()">Re-Enter Arena</button>
+            <div class="input-group">
+                <span class="input-label">ARENA ACCESS CODE</span>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="room-input" class="premium-input" placeholder="ROOM CODE" style="text-transform: uppercase;">
+                    <button class="action-btn btn-play" style="width: 100px;" onclick="joinArena()">JOIN</button>
+                </div>
+                <span class="invite-link" onclick="copyInvite()">COPY INVITE LINK TO CLIPBOARD</span>
+            </div>
+        </div>
+
+        <div id="lobby-waiting" style="display: none;">
+            <div style="background: rgba(255,255,255,0.03); border-radius: 20px; padding: 30px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1);">
+                <div id="lobby-count" class="gt-accent" style="font-size: 3rem; font-weight: 900;">1</div>
+                <div style="font-size: 0.7rem; font-weight: 800; opacity: 0.5;">PLAYERS READY</div>
+            </div>
+            <button id="start-btn" class="action-btn btn-play" onclick="startGame()" disabled style="opacity: 0.5;">WAITING FOR HOST...</button>
         </div>
     </div>
 </div>
 
 <header>
     <div class="brand">The Chosen One</div>
-    <div class="header-right">
-        <div class="stat-group"><span class="stat-label">SCORE</span><div id="score-val" class="stat-value gt-gold">$0</div></div>
-        <div class="stat-group"><span class="stat-label">MOB</span><div id="mob-count" class="stat-value gt-accent">0</div></div>
-        <div class="user-profile">
-            <div class="user-avatar" id="role-avatar">?</div>
-            <div id="role-text" style="font-size: 0.8rem; font-weight: 800;">SYNCING</div>
+    <div class="header-right" style="display: flex; gap: 20px; align-items: center;">
+        <div class="stat-group" style="text-align: right;">
+            <span style="font-size: 0.6rem; opacity: 0.5; font-weight: 800; display: block;">ARENA SCORE</span>
+            <div id="score-val" class="gt-gold" style="font-weight: 900; font-size: 1.2rem;">$0</div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px; background: var(--surface); padding: 5px 15px; border-radius: 100px; border: 1px solid rgba(255,255,255,0.1);">
+            <div id="u-avatar" style="width: 24px; height: 24px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem;">👤</div>
+            <div id="u-name" style="font-size: 0.75rem; font-weight: 800;">SYNCING...</div>
         </div>
     </div>
 </header>
 
 <main>
-    <div id="shroud" style="position: absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); opacity:0; pointer-events:none; transition:0.8s; z-index:20;"></div>
-    <section id="ladder"></section>
+    <div id="ladder"></div>
     <section id="contestant-panel">
-        <div style="text-align:center;">
-            <div id="timer-text" style="font-size: 2rem; font-weight: 900;" class="gt-accent">15</div>
+        <div style="text-align: center;"><div id="timer" style="font-size: 2rem; font-weight: 900;" class="gt-accent">15</div></div>
+        <div>
+            <p id="q-text" class="gt-white" style="font-weight: 700; font-size: 1.1rem; min-height: 60px;">Waiting for Arena to start...</p>
+            <button class="btn-opt" onclick="sendAnswer(0)">A. ...</button>
+            <button class="btn-opt" onclick="sendAnswer(1)">B. ...</button>
+            <button class="btn-opt" onclick="sendAnswer(2)">C. ...</button>
         </div>
-        <div class="q-box">
-            <p id="q-text" class="gt-white" style="font-weight: 700; font-size: 1.15rem; min-height: 50px;"></p>
-            <button class="btn-opt" onclick="userSelect(0)">A. ...</button>
-            <button class="btn-opt" onclick="userSelect(1)">B. ...</button>
-            <button class="btn-opt" onclick="userSelect(2)">C. ...</button>
-        </div>
-        <div class="heatmap" id="heatmap">
-            <div class="heat-bar" id="bar-0"></div>
-            <div class="heat-bar" id="bar-1"></div>
-            <div class="heat-bar" id="bar-2"></div>
-        </div>
-        <div class="action-row" id="action-bar-inner">
-            <button class="action-btn btn-walk" onclick="socket.emit('walkAway')">Walk Away</button>
-            <button class="action-btn btn-play" onclick="socket.emit('playOn')">Play On</button>
+        <div id="action-bar" style="display: none; gap: 10px;">
+            <button class="action-btn" style="background: var(--gold-gradient); color: #000;" onclick="socket.emit('walk')">WALK AWAY</button>
+            <button class="action-btn btn-play" onclick="socket.emit('play')">PLAY ON</button>
         </div>
     </section>
     <section id="mob-grid"></section>
@@ -152,95 +145,84 @@
 
 <script>
     const socket = io();
-    let myRole = 'mob', selected = null, isLocked = true, currentQIndex = 0;
+    let myRole = 'spectator', currentAvatar = '👤', roomCode = '';
 
+    // Init UI
     const grid = document.getElementById('mob-grid');
     for(let i=0; i<100; i++) grid.innerHTML += `<div class="mob-tile" id="m-${i}">👤</div>`;
     const prizes = ["$1k", "$5k", "$10k", "$25k", "$50k", "$100k", "$250k", "$500k", "$1M"];
     const ladder = document.getElementById('ladder');
     prizes.forEach((p, i) => ladder.innerHTML += `<div class="step" id="s-${i}">${p}</div>`);
 
+    // Handle URL Room Codes
+    const urlParams = new URLSearchParams(window.location.search);
+    if(urlParams.get('room')) document.getElementById('room-input').value = urlParams.get('room');
+
+    function setAvatar(el, icon) {
+        document.querySelectorAll('.avatar-opt').forEach(a => a.classList.remove('active'));
+        el.classList.add('active');
+        currentAvatar = icon;
+    }
+
+    function copyInvite() {
+        const code = document.getElementById('room-input').value || Math.random().toString(36).substring(2, 7).toUpperCase();
+        document.getElementById('room-input').value = code;
+        const link = `${window.location.origin}?room=${code}`;
+        navigator.clipboard.writeText(link).then(() => alert("Invite link copied!"));
+    }
+
+    function joinArena() {
+        const name = document.getElementById('username-input').value || "ANON";
+        roomCode = document.getElementById('room-input').value.toUpperCase();
+        if(!roomCode) return alert("Enter a Room Code");
+
+        socket.emit('joinRoom', { room: roomCode, name, avatar: currentAvatar });
+        document.getElementById('lobby-setup').style.display = 'none';
+        document.getElementById('lobby-waiting').style.display = 'block';
+    }
+
+    function startGame() {
+        if(myRole === 'chosen') socket.emit('startArena');
+    }
+
+    // Socket Listeners
     socket.on('init', (data) => {
         myRole = data.role;
-        document.getElementById('role-avatar').innerText = (myRole === 'chosen' ? 'C1' : 'M');
-        document.getElementById('role-text').innerText = (myRole === 'chosen' ? 'CHOSEN_ONE' : 'THE_MOB');
-        const btn = document.getElementById('enter-arena-btn');
-        if(myRole === 'chosen') btn.innerText = "START THE ARENA";
-        else { btn.innerText = "WAITING FOR MASTER"; btn.style.pointerEvents = "none"; }
+        document.getElementById('u-name').innerText = data.name + (myRole === 'spectator' ? ' (OBSERVING)' : '');
+        document.getElementById('u-avatar').innerText = currentAvatar;
+        
+        const startBtn = document.getElementById('start-btn');
+        if(myRole === 'chosen') {
+            startBtn.innerText = "START THE ARENA";
+            startBtn.disabled = false;
+            startBtn.style.opacity = "1";
+        }
     });
 
     socket.on('updateMob', (count) => {
         document.getElementById('lobby-count').innerText = count;
-        document.getElementById('mob-count').innerText = count;
-        if(count >= 1) { const btn = document.getElementById('enter-arena-btn'); btn.disabled = false; btn.style.opacity = "1"; }
-    });
-
-    socket.on('gameStart', () => { document.getElementById('lobby-overlay').style.display = 'none'; });
-
-    socket.on('nextQuestion', (data) => {
-        selected = null; isLocked = false;
-        document.getElementById('q-text').innerText = data.q;
-        document.getElementById('heatmap').style.opacity = 0;
-        document.getElementById('shroud').style.opacity = 0;
-        document.getElementById('action-bar-inner').classList.remove('active');
-        const opts = document.querySelectorAll('.btn-opt');
-        opts.forEach((btn, i) => {
-            btn.innerText = `${String.fromCharCode(65+i)}. ${data.o[i]}`;
-            btn.classList.remove('locked', 'reveal-correct', 'reveal-wrong');
-            btn.disabled = false;
+        document.querySelectorAll('.mob-tile').forEach((t, i) => {
+            t.classList.toggle('active', i < count);
         });
-        document.querySelectorAll('.mob-tile').forEach(t => t.classList.remove('voted'));
     });
 
-    socket.on('tick', (count) => { document.getElementById('timer-text').innerText = count; });
-
-    socket.on('mobVoted', () => {
-        const available = document.querySelectorAll('.mob-tile:not(.voted):not(.eliminated)');
-        if(available.length > 0) available[Math.floor(Math.random() * available.length)].classList.add('voted');
+    socket.on('arenaStarted', () => {
+        document.getElementById('lobby-overlay').style.display = 'none';
     });
 
-    socket.on('reveal', (data) => {
-        isLocked = true;
-        const opts = document.querySelectorAll('.btn-opt');
-        opts.forEach((btn, i) => {
-            btn.disabled = true;
-            if(i === data.correct) btn.classList.add('reveal-correct');
-            else if(i === selected) btn.classList.add('reveal-wrong');
+    socket.on('nextQ', (data) => {
+        document.getElementById('q-text').innerText = data.question;
+        const btns = document.querySelectorAll('.btn-opt');
+        btns.forEach((b, i) => {
+            b.innerText = data.options[i];
+            b.classList.remove('locked');
+            b.disabled = (myRole === 'spectator');
         });
-        document.getElementById('heatmap').style.opacity = 1;
-        [0,1,2].forEach(i => {
-            const bar = document.getElementById(`bar-${i}`);
-            bar.style.height = (data.stats[i] || 5) + "%";
-            bar.className = 'heat-bar ' + (i === data.correct ? 'correct' : 'incorrect');
-        });
-        document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
-        if(document.getElementById(`s-${currentQIndex}`)) document.getElementById(`s-${currentQIndex}`).classList.add('active');
-        currentQIndex++;
     });
 
-    socket.on('decisionPhase', () => {
-        if (myRole === 'chosen') {
-            document.getElementById('shroud').style.opacity = "1";
-            document.getElementById('action-bar-inner').classList.add('active');
-        } else {
-            document.getElementById('q-text').innerText = "THE CHOSEN ONE IS DECIDING...";
-        }
-    });
-
-    socket.on('gameOver', (data) => {
-        const overlay = document.getElementById('overlay');
-        overlay.style.display = 'flex';
-        setTimeout(() => { overlay.style.opacity = '1'; document.getElementById('result-card').style.transform = 'scale(1)'; }, 50);
-        document.getElementById('res-msg').innerText = data.message;
-    });
-
-    function readyUp() { if(myRole === 'chosen') socket.emit('startGame'); }
-
-    function userSelect(i) {
-        if(isLocked || selected !== null) return;
-        selected = i;
-        document.querySelectorAll('.btn-opt').forEach((btn, idx) => btn.classList.toggle('locked', idx === i));
-        socket.emit('submitAnswer', i);
+    function sendAnswer(idx) {
+        document.querySelectorAll('.btn-opt').forEach((b, i) => b.classList.toggle('locked', i === idx));
+        socket.emit('submitAnswer', idx);
     }
 </script>
 </body>
