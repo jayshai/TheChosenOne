@@ -9,212 +9,158 @@
         :root {
             --system-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             --bg-deep: #050507;
-            --surface: rgba(255, 255, 255, 0.03);
-            --surface-lift: rgba(255, 255, 255, 0.08);
             --accent: #6366f1;
             --accent-glow: rgba(99, 102, 241, 0.4);
             --success: #10b981;
             --danger: #ef4444;
             --gold: #f59e0b;
-            --gold-glow: rgba(245, 158, 11, 0.4);
-            --muted: #31313a;
             --premium-gradient: linear-gradient(180deg, #FFFFFF 30%, #6366f1 100%);
             --btn-gradient: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
-            --gold-gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
             --txt-white: linear-gradient(180deg, #FFFFFF 40%, #a5a5a5 100%);
             --txt-accent: linear-gradient(180deg, #a5b4fc 0%, #6366f1 100%);
             --txt-gold: linear-gradient(180deg, #fde68a 0%, #f59e0b 100%);
-            --txt-success: linear-gradient(180deg, #6ee7b7 0%, #10b981 100%);
         }
 
         * { box-sizing: border-box; }
-        body {
-            margin: 0; font-family: var(--system-font);
-            background-color: var(--bg-deep); color: #fff;
-            height: 100vh; display: flex; flex-direction: column; overflow: hidden;
-            position: relative;
-        }
+        body { margin: 0; font-family: var(--system-font); background-color: var(--bg-deep); color: #fff; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+        
+        /* MULTIPLAYER UI MODIFIER */
+        body.is-mob .chosen-only { display: none !important; }
 
-        #bg-canvas {
-            position: fixed; top: -50%; left: -50%; width: 200%; height: 200%;
-            z-index: -1;
-            background: radial-gradient(circle at 30% 30%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
-                        radial-gradient(circle at 70% 70%, rgba(245, 158, 11, 0.08) 0%, transparent 40%),
-                        radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.05) 0%, transparent 60%);
-            animation: auroraDrift 25s ease-in-out infinite alternate;
-        }
-        @keyframes auroraDrift { 0% { transform: translate(0, 0) rotate(0deg); } 100% { transform: translate(8%, 4%) rotate(3deg); } }
+        #bg-canvas { position: fixed; top: -50%; left: -50%; width: 200%; height: 200%; z-index: -1; background: radial-gradient(circle at 30% 30%, rgba(99, 102, 241, 0.15) 0%, transparent 40%), radial-gradient(circle at 70% 70%, rgba(245, 158, 11, 0.08) 0%, transparent 40%); animation: auroraDrift 25s infinite alternate; }
+        @keyframes auroraDrift { 0% { transform: translate(0, 0); } 100% { transform: translate(5%, 5%); } }
 
         .gt-white { background: var(--txt-white); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .gt-accent { background: var(--txt-accent); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .gt-gold { background: var(--txt-gold); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .gt-success { background: var(--txt-success); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
-        header {
-            height: 75px; padding: 0 40px; display: flex;
-            justify-content: space-between; align-items: center;
-            background: rgba(10, 10, 12, 0.6); backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255,255,255,0.05); z-index: 10;
-        }
+        header { height: 75px; padding: 0 40px; display: flex; justify-content: space-between; align-items: center; background: rgba(10, 10, 12, 0.6); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.05); z-index: 10; }
         .brand { font-weight: 900; font-size: 1.3rem; letter-spacing: -0.05em; background: var(--premium-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; }
-        .header-right { display: flex; gap: 25px; align-items: center; }
-        .stat-group { text-align: right; }
-        .stat-label { opacity: 0.5; font-weight: 800; font-size: 0.6rem; letter-spacing: 0.05em; display: block; }
-        .stat-value { font-weight: 900; font-size: 1.1rem; }
         .user-profile { display: flex; align-items: center; gap: 12px; padding: 6px 16px; background: rgba(255,255,255,0.03); border-radius: 100px; border: 1px solid rgba(255,255,255,0.1); }
         .user-avatar { width: 32px; height: 32px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.75rem; box-shadow: 0 0 15px var(--accent-glow); }
 
         main { display: grid; grid-template-columns: 100px 420px 1fr; flex-grow: 1; padding: 25px; gap: 20px; height: calc(100vh - 75px); position: relative; z-index: 1; }
 
-        #ladder { display: flex; flex-direction: column-reverse; gap: 6px; z-index: 5; }
-        .step { flex: 1; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 800; color: #444; transition: 0.4s; }
-        .step.active { border-color: var(--gold); color: var(--gold); background: rgba(245, 158, 11, 0.1); border: 1px solid; box-shadow: 0 0 20px rgba(245, 158, 11, 0.2); }
+        #ladder { display: flex; flex-direction: column-reverse; gap: 6px; }
+        .step { flex: 1; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 800; color: #444; }
+        .step.active { border-color: var(--gold); color: var(--gold); background: rgba(245, 158, 11, 0.1); }
 
-        #contestant-panel { 
-            background: rgba(18, 18, 23, 0.6); border-radius: 32px; border: 1px solid rgba(255,255,255,0.1); 
-            padding: 30px; display: flex; flex-direction: column; justify-content: space-between;
-            z-index: 100; backdrop-filter: blur(25px); box-shadow: 0 20px 40px rgba(0,0,0,0.4); 
-        }
+        #contestant-panel { background: rgba(18, 18, 23, 0.6); border-radius: 32px; border: 1px solid rgba(255,255,255,0.1); padding: 30px; display: flex; flex-direction: column; justify-content: space-between; backdrop-filter: blur(25px); }
 
         .btn-opt { width: 100%; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); padding: 16px; margin-bottom: 8px; border-radius: 16px; color: #fff; font-weight: 600; text-align: left; cursor: pointer; transition: 0.2s; }
-        .btn-opt.locked { border-color: #fff; background: var(--btn-gradient); box-shadow: 0 4px 15px var(--accent-glow); }
-        .btn-opt.reveal-correct { background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important; border-color: #fff !important; }
-        .btn-opt.reveal-wrong { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important; border-color: #fff !important; }
+        .btn-opt.locked { border-color: #fff; background: var(--btn-gradient); }
+        .btn-opt.reveal-correct { background: #10b981 !important; }
+        .btn-opt.reveal-wrong { background: #ef4444 !important; }
 
-        #mob-grid { display: grid; grid-template-columns: repeat(10, 1fr); grid-template-rows: repeat(10, 1fr); gap: 8px; height: 100%; z-index: 5; }
-        .mob-tile { 
-            background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; 
-            display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: rgba(255,255,255,0.1);
-            transition: all 0.3s ease; position: relative; 
-        }
-        .mob-tile.voted { background: rgba(99, 102, 241, 0.15); color: #fff; border-color: var(--accent); }
-        .mob-tile.wrong { background: var(--danger) !important; border-color: #fff !important; color: #fff !important; z-index: 50; }
-        .mob-tile.eliminated { opacity: 0; transform: translateY(10px); pointer-events: none; }
+        #mob-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 8px; height: 100%; }
+        .mob-tile { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: rgba(255,255,255,0.1); transition: 0.3s; }
+        .mob-tile.voted { background: rgba(99, 102, 241, 0.4); color: #fff; border-color: #fff; }
+        .mob-tile.eliminated { opacity: 0; transform: scale(0.5); }
 
         .heatmap { display: flex; gap: 12px; height: 60px; margin: 10px 0; align-items: flex-end; opacity: 0; transition: 0.5s; }
-        .heat-bar { flex: 1; border-radius: 8px 8px 2px 2px; min-height: 5px; transition: height 0.8s; position: relative; background: var(--muted); }
-        .heat-bar.correct { background: linear-gradient(to top, #065f46, var(--success)); }
-        .heat-bar.incorrect { background: linear-gradient(to top, #991b1b, var(--danger)); }
+        .heat-bar { flex: 1; border-radius: 8px 8px 2px 2px; min-height: 5px; background: #31313a; transition: height 0.8s; }
+        .heat-bar.correct { background: #10b981; }
+        .heat-bar.incorrect { background: #ef4444; }
 
-        #lobby-overlay, #overlay { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(50px);
-            z-index: 3000; display: flex; flex-direction: column; align-items: center; justify-content: center; 
-        }
-        
-        .premium-card { 
-            background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.15); 
-            border-radius: 48px; padding: 60px; text-align: center; width: 540px; 
-            box-shadow: 0 40px 120px rgba(0,0,0,0.8); transition: transform 0.6s, opacity 0.6s; 
-        }
-        .premium-title { font-size: 3.5rem; font-weight: 900; letter-spacing: -0.05em; background: var(--premium-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; }
+        #lobby-overlay, #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(50px); z-index: 3000; display: flex; align-items: center; justify-content: center; text-align: center; }
+        .premium-card { background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 48px; padding: 60px; width: 540px; }
+        .action-btn { width: 100%; padding: 22px; border-radius: 20px; border: none; font-weight: 900; cursor: pointer; background: var(--btn-gradient); color: #fff; text-transform: uppercase; }
 
-        .action-row { display: flex; gap: 15px; margin-top: 15px; width: 100%; opacity: 0; transition: 0.5s; pointer-events: none; }
-        .action-row.active { opacity: 1; pointer-events: all; }
-        .action-btn { flex: 1; padding: 22px; border-radius: 20px; border: none; font-weight: 900; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
-        .btn-play { background: var(--btn-gradient); color: #fff; box-shadow: 0 10px 30px var(--accent-glow); }
-
-        #big-countdown { position: absolute; font-size: 12rem; font-weight: 900; background: var(--premium-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: none; z-index: 3001; }
-
-        /* Responsive */
         @media (max-width: 1024px) {
-            main { display: flex; flex-direction: column; padding: 15px; height: auto; }
-            #ladder { flex-direction: row; height: 35px; order: 1; overflow-x: auto; }
-            .step { min-width: 60px; flex: none; }
-            #contestant-panel { order: 2; padding: 20px; }
-            #mob-grid { order: 3; height: auto; grid-template-columns: repeat(10, 1fr); }
-            .premium-card { width: 90%; padding: 40px 20px; }
+            main { display: flex; flex-direction: column; overflow-y: auto; height: auto; }
+            #ladder { flex-direction: row; height: 40px; overflow-x: auto; }
+            .step { min-width: 60px; }
+            #mob-grid { grid-template-columns: repeat(10, 1fr); height: auto; }
+            .premium-card { width: 90%; padding: 30px; }
         }
     </style>
 </head>
-<body>
+<body class="">
 
 <div id="bg-canvas"></div>
 
 <div id="lobby-overlay">
-    <div class="premium-card" id="lobby-card">
-        <h1 class="premium-title">The Chosen One</h1>
-        <div style="margin-bottom: 30px;">
-            <span id="lobby-status" class="gt-accent" style="font-size: 0.85rem; font-weight: 800; letter-spacing: 2px;">CONNECTING...</span>
+    <div class="premium-card">
+        <h1 class="gt-white" style="font-size: 3rem; margin: 0;">ARENA LOBBY</h1>
+        <p id="lobby-status" class="gt-accent" style="font-weight: 800; letter-spacing: 2px;">WAITING FOR UPLINK...</p>
+        <div style="background: rgba(255,255,255,0.03); border-radius: 24px; padding: 30px; margin: 20px 0;">
+            <div style="opacity: 0.5; font-size: 0.8rem;">PLAYERS READY</div>
+            <div id="lobby-count" class="gt-white" style="font-size: 3rem; font-weight: 900;">0</div>
         </div>
-        <div style="background: rgba(255,255,255,0.03); border-radius: 24px; padding: 35px; margin: 25px 0; border: 1px solid rgba(255,255,255,0.1);">
-            <div style="font-size: 0.75rem; font-weight: 800; opacity: 0.4; margin-bottom: 10px; text-transform: uppercase;">Real Players Connected</div>
-            <div id="lobby-count" class="gt-accent" style="font-size: 3.2rem; font-weight: 900;">0</div>
-        </div>
-        <button id="enter-arena-btn" class="action-btn btn-play" onclick="requestStart()" disabled style="opacity: 0.2;">Waiting for Players</button>
+        <button id="enter-arena-btn" class="action-btn" onclick="requestStart()" disabled>CONNECTING...</button>
     </div>
-    <div id="big-countdown"></div>
+</div>
+
+<div id="overlay" style="display:none;">
+    <div class="premium-card">
+        <h1 id="res-title" class="gt-gold" style="font-size: 3rem;">GAME OVER</h1>
+        <p id="res-msg" style="margin-bottom: 30px;">The Arena has concluded.</p>
+        <button class="action-btn" onclick="location.reload()">RE-ENTER ARENA</button>
+    </div>
 </div>
 
 <header>
-    <div class="header-left"><div class="brand">The Chosen One</div></div>
+    <div class="brand">The Chosen One</div>
     <div class="header-right">
-        <div class="stat-group"><span class="stat-label">SCORE</span><div id="score-val" class="stat-value gt-gold">$0</div></div>
-        <div class="stat-group"><span class="stat-label">MOB</span><div id="mob-count" class="stat-value gt-accent">0</div></div>
-        <div class="user-profile"><div class="user-avatar" id="role-badge">?</div><div id="role-text" style="font-size: 0.8rem; font-weight: 800;">CONNECTING</div></div>
+        <div class="user-profile">
+            <div class="user-avatar" id="role-badge">?</div>
+            <div id="role-text" style="font-size: 0.8rem; font-weight: 800;">SYNCING...</div>
+        </div>
     </div>
 </header>
 
 <main>
-    <div id="shroud" style="position: absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); opacity:0; pointer-events:none; z-index:20;"></div>
     <section id="ladder"></section>
     <section id="contestant-panel">
-        <div style="position: relative; width: 60px; height: 60px; margin: 0 auto;">
-            <svg style="transform: rotate(-90deg); width: 100%; height: 100%;" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="45" stroke="rgba(255,255,255,0.05)" stroke-width="6" fill="none"/>
-                <circle id="timer-path" cx="50" cy="50" r="45" stroke="var(--accent)" stroke-width="6" fill="none" style="stroke-dasharray: 283; transition: stroke-dashoffset 1s linear;"/>
-            </svg>
-            <div id="timer-text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: 900;">15</div>
+        <div style="text-align:center;">
+            <div id="timer-text" style="font-size: 2rem; font-weight: 900;" class="gt-accent">15</div>
         </div>
-        <div class="q-box">
-            <p id="q-text" class="gt-white" style="font-weight: 700; font-size: 1.15rem; min-height: 50px;"></p>
-            <button class="btn-opt" onclick="userSelect(0)">A. Waiting...</button>
-            <button class="btn-opt" onclick="userSelect(1)">B. Waiting...</button>
-            <button class="btn-opt" onclick="userSelect(2)">C. Waiting...</button>
+        <div>
+            <p id="q-text" class="gt-white" style="font-weight: 700; font-size: 1.2rem; min-height: 60px;"></p>
+            <button class="btn-opt" onclick="userSelect(0)">A. ...</button>
+            <button class="btn-opt" onclick="userSelect(1)">B. ...</button>
+            <button class="btn-opt" onclick="userSelect(2)">C. ...</button>
         </div>
         <div class="heatmap" id="heatmap">
             <div class="heat-bar" id="bar-0"></div>
             <div class="heat-bar" id="bar-1"></div>
             <div class="heat-bar" id="bar-2"></div>
         </div>
+        <div class="chosen-only" style="margin-top: 10px;">
+            <button class="action-btn" style="background: var(--gold-gradient); color:#000;">WALK AWAY</button>
+        </div>
     </section>
     <section id="mob-grid"></section>
 </main>
 
 <script>
-    const socket = io(); // Connects to the server automatically
+    const socket = io();
     let myRole = 'mob';
     let selected = null;
+    let currentQIndex = 0;
+
     const grid = document.getElementById('mob-grid');
     for(let i=0; i<100; i++) grid.innerHTML += `<div class="mob-tile" id="m-${i}">👤</div>`;
+    
     const prizes = ["$1k", "$5k", "$10k", "$25k", "$50k", "$100k", "$250k", "$500k", "$1M"];
     prizes.forEach((p, i) => document.getElementById('ladder').innerHTML += `<div class="step" id="s-${i}">${p}</div>`);
-
-    // --- SOCKET LISTENERS ---
 
     socket.on('init', (data) => {
         myRole = data.role;
         document.getElementById('role-badge').innerText = (myRole === 'chosen' ? 'C1' : 'M');
-        document.getElementById('role-text').innerText = (myRole === 'chosen' ? 'THE CHOSEN ONE' : 'THE MOB');
+        document.getElementById('role-text').innerText = (myRole === 'chosen' ? 'CHOSEN ONE' : 'THE MOB');
         
-        const btn = document.getElementById('enter-arena-btn');
-        if(myRole === 'chosen') {
-            btn.innerText = "Start the Game";
-            document.getElementById('lobby-status').innerText = "ARENA MASTER";
+        if(myRole === 'mob') {
+            document.body.classList.add('is-mob');
+            document.getElementById('enter-arena-btn').innerText = "WAITING FOR MASTER";
         } else {
-            btn.innerText = "Ready in Lobby";
-            document.getElementById('lobby-status').innerText = "WAITING FOR MASTER";
+            document.getElementById('enter-arena-btn').innerText = "START THE ARENA";
         }
     });
 
     socket.on('updateMob', (count) => {
         document.getElementById('lobby-count').innerText = count;
-        document.getElementById('mob-count').innerText = count;
-        if(count >= 1) { // Minimum players needed
-            const btn = document.getElementById('enter-arena-btn');
-            btn.disabled = false;
-            btn.style.opacity = "1";
-        }
+        if(count >= 1) document.getElementById('enter-arena-btn').disabled = false;
     });
 
     socket.on('gameStart', () => {
@@ -224,18 +170,24 @@
     socket.on('nextQuestion', (data) => {
         selected = null;
         document.getElementById('q-text').innerText = data.q;
+        document.getElementById('heatmap').style.opacity = 0;
+        document.querySelectorAll('.mob-tile').forEach(t => t.classList.remove('voted'));
+        
         const opts = document.querySelectorAll('.btn-opt');
         opts.forEach((btn, i) => {
             btn.innerText = `${String.fromCharCode(65+i)}. ${data.o[i]}`;
             btn.classList.remove('locked', 'reveal-correct', 'reveal-wrong');
             btn.disabled = false;
         });
-        document.getElementById('heatmap').style.opacity = 0;
     });
 
     socket.on('tick', (count) => {
         document.getElementById('timer-text').innerText = count;
-        document.getElementById('timer-path').style.strokeDashoffset = 283 - (283 * (count / 15));
+    });
+
+    socket.on('mobVoted', () => {
+        const available = document.querySelectorAll('.mob-tile:not(.voted):not(.eliminated)');
+        if(available.length > 0) available[0].classList.add('voted');
     });
 
     socket.on('reveal', (data) => {
@@ -245,29 +197,31 @@
             if(i === data.correct) btn.classList.add('reveal-correct');
             else if(i === selected) btn.classList.add('reveal-wrong');
         });
-        
-        // Heatmap logic using server data
+
         document.getElementById('heatmap').style.opacity = 1;
         [0,1,2].forEach(i => {
-            const pct = data.stats[i] || 0;
-            document.getElementById(`bar-${i}`).style.height = pct + "%";
-            document.getElementById(`bar-${i}`).classList.add(i === data.correct ? 'correct' : 'incorrect');
+            const bar = document.getElementById(`bar-${i}`);
+            bar.style.height = (data.stats[i] || 5) + "%";
+            bar.className = 'heat-bar ' + (i === data.correct ? 'correct' : 'incorrect');
         });
+
+        // Update Ladder
+        document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+        document.getElementById(`s-${currentQIndex}`).classList.add('active');
+        currentQIndex++;
     });
 
-    // --- ACTIONS ---
+    socket.on('gameOver', (data) => {
+        document.getElementById('overlay').style.display = 'flex';
+        document.getElementById('res-msg').innerText = data.message;
+    });
 
-    function requestStart() {
-        if(myRole === 'chosen') {
-            socket.emit('startGame');
-        }
-    }
-
+    function requestStart() { if(myRole === 'chosen') socket.emit('startGame'); }
+    
     function userSelect(i) {
+        if(selected !== null) return;
         selected = i;
-        document.querySelectorAll('.btn-opt').forEach((btn, idx) => {
-            btn.classList.toggle('locked', idx === i);
-        });
+        document.querySelectorAll('.btn-opt').forEach((b, idx) => b.classList.toggle('locked', idx === i));
         socket.emit('submitAnswer', i);
     }
 </script>
