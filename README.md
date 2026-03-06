@@ -1,2 +1,2 @@
 # TheChosenOne
-A 1v100 clone, directly in browser. A vibecoded experiment.
+A 1v100 style clone game, directly in browser. A vibecoded experiment.
